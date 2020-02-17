@@ -62,8 +62,8 @@ def materialize_calendar(
                                                partial_times[0],
                                                timedelta(days=partial_days) +
                                                partial_times[1])
-    return (start + partial_td[0], start + partial_td[1])
-
+    result =  (start + partial_td[0], start + partial_td[1])
+    return result
 
 # 星期数的偏移量，以星期一为一周的起始
 DAY_MAP = {

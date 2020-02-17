@@ -84,7 +84,7 @@ class ShaPingBaSchedule(Schedule):
 
     @classmethod
     def get(
-        cls, index: int, default=(timedelta(hours=8), timedelta(23, 59))
+        cls, index: int, default=(timedelta(hours=8), timedelta(hours=23, minutes=59))
     ) -> Tuple[timedelta, timedelta]:
         "获取指定节次的开始、结束时间，节次在 1-12 范围之内"
         if 1 <= index <= 12:
