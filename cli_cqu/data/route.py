@@ -1,9 +1,15 @@
 """jxgl.cqu.edu.cn 网址的路由
 """
-from requests import Session
-from bs4 import BeautifulSoup
-from . import HOST
 import logging
+from typing import List
+from typing import Union
+
+from bs4 import BeautifulSoup
+from requests import Session
+
+from ..model import Course
+from ..model import ExperinceCourse
+from . import HOST
 
 __all__ = ("Route", "Parsed")
 
@@ -16,12 +22,15 @@ class Route:
         "教学安排模块"
         # 个人课表
         personal_cources = "/znpk/Pri_StuSel.aspx"
+        # 查询个人课表
+        personal_cources_table = "/znpk/Pri_StuSel_rpt.aspx"
 
 
 class Parsed:
     class TeachingArragement:
         "教学安排模块"
 
+        # todo: 只使用 get 方法
         @staticmethod
         def personal_cources(s: Session,
                              method="get",
@@ -70,7 +79,79 @@ class Parsed:
             else:
                 return {"raw": s.request(method, url)}
 
+        @staticmethod
+        def personal_cources_table(
+                s: Session,
+                data: dict) -> List[Union[Course, ExperinceCourse]]:
+            """查询个人课表，需要的表单信息可以通过
+            Route.TeachingArrangement.personal_cources 获取
+            """
+            url = f"{HOST.PREFIX}{Route.TeachingArragement.personal_cources_table}"
+            resp = s.post(url, data=data)
+            html = BeautifulSoup(resp.text, "lxml")
+            listing = html.select("table > tbody > tr")
+            cources = [make_course(i) for i in listing]
+            return cources
+
 
 def makeurl(path: str) -> str:
     "将 path 补全为完整的 url"
     return f"{HOST.PREFIX}{path}"
+
+
+def make_course(tr: BeautifulSoup) -> Union[Course, ExperinceCourse]:
+    "根据传入的 tr 元素，获取对应的 Course 对象"
+    td = tr.select("td")
+    # 第一列是序号，忽略
+    if len(td) == 13:
+        return Course(
+            identifier=td[1].text
+            if td[1].text != "" else td[1].attrs["hidevalue"],
+            score=float(
+                td[2].text if td[2].text != "" else td[2].attrs["hidevalue"]),
+            time_total=float(
+                td[3].text if td[3].text != "" else td[3].attrs["hidevalue"]),
+            time_teach=float(
+                td[4].text if td[4].text != "" else td[4].attrs["hidevalue"]),
+            time_practice=float(
+                td[5].text if td[5].text != "" else td[5].attrs["hidevalue"]),
+            classifier=td[6].text
+            if td[6].text != "" else td[6].attrs["hidevalue"],
+            teach_type=td[7].text
+            if td[7].text != "" else td[7].attrs["hidevalue"],
+            exam_type=td[8].text
+            if td[8].text != "" else td[8].attrs["hidevalue"],
+            teacher=td[9].text
+            if td[9].text != "" else td[9].attrs["hidevalue"],
+            week_schedule=td[10].text,
+            day_schedule=td[11].text,
+            location=td[12].text)
+    elif len(td) == 12:
+        return ExperinceCourse(
+            identifier=td[1].text
+            if td[1].text != "" else td[1].attrs["hidevalue"],
+            score=float(
+                td[2].text if td[2].text != "" else td[2].attrs["hidevalue"]),
+            time_total=float(
+                td[3].text if td[3].text != "" else td[3].attrs["hidevalue"]),
+            time_teach=float(
+                td[4].text if td[4].text != "" else td[4].attrs["hidevalue"]),
+            time_practice=float(
+                td[5].text if td[5].text != "" else td[5].attrs["hidevalue"]),
+            project_name=td[6].text
+            if td[6].text != "" else td[6].attrs["hidevalue"],
+            teacher=td[7].text
+            if td[7].text != "" else td[7].attrs["hidevalue"],
+            hosting_teacher=td[8].text
+            if td[8].text != "" else td[8].attrs["hidevalue"],
+            week_schedule=td[9].text
+            if td[9].text != "" else td[9].attrs["hidevalue"],
+            day_schedule=td[10].text
+            if td[10].text != "" else td[10].attrs["hidevalue"],
+            location=td[11].text
+            if td[11].text != "" else td[11].attrs["hidevalue"],
+        )
+    else:
+        logging.error("未知的数据结构")
+        logging.error(tr.prettify())
+        raise ValueError("未知的数据结构")
