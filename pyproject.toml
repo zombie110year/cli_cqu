@@ -20,18 +20,20 @@ requests = "^2.22.0"
 beautifulsoup4 = "^4.8.2"
 lxml = "^4.5.0"
 pydantic = "^1.4"
+icalendar = "^4.0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 yapf = "^0.29.0"
+isort = "^4.3.21"
 
 [[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple"
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
 [tool.poetry.scripts]
 cli-cqu = "cli_cqu:cli_main"
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/zombie110year/cli_cqu/issues"
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
