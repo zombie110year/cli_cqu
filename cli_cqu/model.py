@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+__all__ = ("Course", "ExperimentCourse")
+
 
 class Course(BaseModel):
     "一般课程"

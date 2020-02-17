@@ -1,5 +1,6 @@
 """CLI CQU 是重庆大学教务系统的命令行界面
 """
+import json
 import logging
 import re
 import time
@@ -11,6 +12,7 @@ from requests import Session
 
 from .data import HOST
 from .data.js_equality import chkpwd
+from .data.route import Parsed
 from .data.ua import UA_IE11
 
 __version__ = '0.1.0'
@@ -93,6 +95,7 @@ class App:
         }
         self.session.post(url, data=login_form)
 
+    # todo 删除，用不着这个
     def get(self, path: str) -> Response:
         "使用 App.session 发起 get 请求，可以省略掉扩展名"
         if path.startswith("http") or path.startswith("jxgl"):
@@ -100,3 +103,27 @@ class App:
             return self.session.get(path)
         else:
             return self.session.get(f"{HOST.PREFIX}{path}")
+
+    def cources_table(self):
+        """选择课程表，下载为 JSON 文件"""
+        print("=== 下载课程表，保存为 JSON ===")
+        filename = input("文件名（可忽略 json 后缀）> ").strip()
+        if not filename.endswith(".json"):
+            filename = f"{filename}.json"
+
+        info = Parsed.TeachingArragement.personal_cources(self.session)
+        print("=== 选择学年学期 ===")
+        xnxq_list = info["Sel_XNXQ"]
+        for i, li in enumerate(xnxq_list):
+            print(f"{i}: {li['text']}")
+        xnxq_i = int(input("学年学期[0|1]> ").rstrip())
+        xnxq = info["Sel_XNXQ"][xnxq_i]["value"]
+
+        param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
+        table = Parsed.TeachingArragement.personal_cources_table(
+            self.session, param)
+        with open(filename, "wt", encoding="utf-8") as out:
+            json.dump([i.dict() for i in table],
+                      out,
+                      indent=2,
+                      ensure_ascii=False)
