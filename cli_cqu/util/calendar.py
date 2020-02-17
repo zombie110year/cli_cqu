@@ -26,8 +26,7 @@ def make_ical(
     cal.add("version", "2.0")
     for course in courses:
         cal.add_component(build_event(course, start, schedule))
-    ical = cal.to_ical()
-    return ical
+    return cal
 
 
 def build_event(
