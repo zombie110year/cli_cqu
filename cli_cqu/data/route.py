@@ -45,7 +45,7 @@ class Parsed:
                 el_学年学期 = html.select("select[name=Sel_XNXQ] > option")
                 学年学期 = [{
                     "text": i.text,
-                    "value": i.attrs["value"]
+                    "value": int(i.attrs["value"])
                 } for i in el_学年学期]
                 el_是否选择周次 = html.select_one("input[name=zc_flag]")
                 el_设定周次 = html.select("input[name=zc_input]")
@@ -57,7 +57,7 @@ class Parsed:
                 el_排序 = html.select("select[name=px] > option")
                 排序 = [{
                     "text": i.text,
-                    "value": i.attrs["value"]
+                    "value": int(i.attrs["value"])
                 } for i in el_排序]
 
                 return {
