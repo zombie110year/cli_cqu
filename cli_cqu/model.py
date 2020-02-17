@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
-@dataclass
-class Course:
+
+class Course(BaseModel):
     "一般课程"
     # 课程号+名字
     identifier: str
@@ -29,8 +29,7 @@ class Course:
     location: str
 
 
-@dataclass
-class ExperinceCourse:
+class ExperimentCourse(BaseModel):
     "实验课"
     # 课程号+名字
     identifier: str

@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from requests import Session
 
 from ..model import Course
-from ..model import ExperinceCourse
+from ..model import ExperimentCourse
 from . import HOST
 
 __all__ = ("Route", "Parsed")
@@ -66,7 +66,7 @@ class Parsed:
         @staticmethod
         def personal_cources_table(
                 s: Session,
-                data: dict) -> List[Union[Course, ExperinceCourse]]:
+                data: dict) -> List[Union[Course, ExperimentCourse]]:
             """查询个人课表，需要的表单信息可以通过
             Route.TeachingArrangement.personal_cources 获取
             """
@@ -83,7 +83,7 @@ def makeurl(path: str) -> str:
     return f"{HOST.PREFIX}{path}"
 
 
-def make_course(tr: BeautifulSoup) -> Union[Course, ExperinceCourse]:
+def make_course(tr: BeautifulSoup) -> Union[Course, ExperimentCourse]:
     "根据传入的 tr 元素，获取对应的 Course 对象"
     td = tr.select("td")
     # 第一列是序号，忽略
@@ -111,7 +111,7 @@ def make_course(tr: BeautifulSoup) -> Union[Course, ExperinceCourse]:
             day_schedule=td[11].text,
             location=td[12].text)
     elif len(td) == 12:
-        return ExperinceCourse(
+        return ExperimentCourse(
             identifier=td[1].text
             if td[1].text != "" else td[1].attrs["hidevalue"],
             score=float(
