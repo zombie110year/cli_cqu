@@ -142,10 +142,17 @@ class App:
     def courses_json(self):
         """选择课程表，下载为 JSON 文件"""
         print("=== 下载课程表，保存为 JSON ===")
+        courses = self.__get_courses()
         filename = input("文件名（可忽略 json 后缀）> ").strip()
         if not filename.endswith(".json"):
             filename = f"{filename}.json"
+        with open(filename, "wt", encoding="utf-8") as out:
+            json.dump([i.dict() for i in courses],
+                      out,
+                      indent=2,
+                      ensure_ascii=False)
 
+    def __get_courses(self):
         info = Parsed.TeachingArrangement.personal_courses(self.session)
         print("=== 选择学年学期 ===")
         xnxq_list = info["Sel_XNXQ"]
@@ -155,13 +162,9 @@ class App:
         xnxq = info["Sel_XNXQ"][xnxq_i]["value"]
 
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
-        table = Parsed.TeachingArrangement.personal_courses_table(
+        courses = Parsed.TeachingArrangement.personal_courses_table(
             self.session, param)
-        with open(filename, "wt", encoding="utf-8") as out:
-            json.dump([i.dict() for i in table],
-                      out,
-                      indent=2,
-                      ensure_ascii=False)
+        return courses
 
 
 def show_help():
