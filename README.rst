@@ -6,6 +6,8 @@ CLI CQU
 提供以下功能：
 
 - 下载课表
+    -   保存为 JSON，便于后续处理（字段定义参考 `cli_cqu.model` 模块）
+    -   保存为 ICalendar 日历日程，可导入 Outlook 等日历应用
 
 使用
 ====
