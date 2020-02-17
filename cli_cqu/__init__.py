@@ -95,15 +95,6 @@ class App:
         }
         self.session.post(url, data=login_form)
 
-    # todo 删除，用不着这个
-    def get(self, path: str) -> Response:
-        "使用 App.session 发起 get 请求，可以省略掉扩展名"
-        if path.startswith("http") or path.startswith("jxgl"):
-            logging.warn("App.get 方法应当只传入URL的 path 部分，如 /MAINFORM.aspx")
-            return self.session.get(path)
-        else:
-            return self.session.get(f"{HOST.PREFIX}{path}")
-
     def cources_table(self):
         """选择课程表，下载为 JSON 文件"""
         print("=== 下载课程表，保存为 JSON ===")
