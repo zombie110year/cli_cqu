@@ -19,10 +19,11 @@ __all__ = ("App")
 
 
 class App:
-    def __init__(self, username: str, password: str = None):
+    def __init__(self, username: str = None, password: str = None):
         self.password = password if password is not None else getpass(
             "password> ").rstrip('\n')
-        self.username = username
+        self.username = username if username is not None else input(
+            "username> ")
         self.session = Session()
         self.session.headers.update({
             'host': HOST.DOMAIN,
