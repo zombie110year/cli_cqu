@@ -8,6 +8,7 @@ authors = ["zombie110year <zombie110year@outlook.com>"]
 python = "^3.7"
 requests = "^2.22.0"
 beautifulsoup4 = "^4.8.2"
+lxml = "^4.5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
