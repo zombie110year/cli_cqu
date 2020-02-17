@@ -2,7 +2,7 @@
 """
 from abc import abstractclassmethod
 from abc import abstractmethod
-from datetime import time
+from datetime import timedelta
 from typing import Tuple
 
 __all__ = ("HuxiSchedule", "ShaPingBaSchedule")
@@ -12,11 +12,13 @@ class Schedule:
     "作息时间"
 
     @abstractmethod
-    def get(self, index: int, default: Tuple[time, time]) -> Tuple[time, time]:
+    def get(
+        self, index: int, default: Tuple[timedelta, timedelta]
+    ) -> Tuple[timedelta, timedelta]:
         ...
 
     @abstractclassmethod
-    def __getitem__(cls, index: int) -> Tuple[time, time]:
+    def __getitem__(cls, index: int) -> Tuple[timedelta, timedelta]:
         ...
 
 
@@ -26,27 +28,30 @@ class HuxiSchedule(Schedule):
     节次 ：（开始时间，结束时间）
     """
     __MAP__ = {
-        1: (time(8, 30), time(9, 15)),
-        2: (time(9, 25), time(10, 10)),
-        3: (time(10, 30), time(11, 15)),
-        4: (time(11, 25), time(12, 10)),
-        5: (time(14), time(14, 45)),
-        6: (time(14, 55), time(15, 40)),
-        7: (time(16), time(16, 45)),
-        8: (time(16, 55), time(17, 40)),
-        9: (time(19), time(19, 45)),
-        10: (time(19, 55), time(20, 40)),
-        11: (time(20, 50), time(21, 35)),
-        12: (time(21, 35), time(23, 59)),
+        1: (timedelta(hours=8, minutes=30), timedelta(hours=9, minutes=15)),
+        2: (timedelta(hours=9, minutes=25), timedelta(hours=10, minutes=10)),
+        3: (timedelta(hours=10, minutes=30), timedelta(hours=11, minutes=15)),
+        4: (timedelta(hours=11, minutes=25), timedelta(hours=12, minutes=10)),
+        5: (timedelta(hours=14), timedelta(hours=14, minutes=45)),
+        6: (timedelta(hours=14, minutes=55), timedelta(hours=15, minutes=40)),
+        7: (timedelta(hours=16), timedelta(hours=16, minutes=45)),
+        8: (timedelta(hours=16, minutes=55), timedelta(hours=17, minutes=40)),
+        9: (timedelta(hours=19), timedelta(hours=19, minutes=45)),
+        10: (timedelta(hours=19, minutes=55), timedelta(hours=20, minutes=40)),
+        11: (timedelta(hours=20, minutes=50), timedelta(hours=21, minutes=35)),
+        12: (timedelta(hours=21, minutes=35), timedelta(hours=23, minutes=59)),
     }
 
-    def __getitem__(self, index: int) -> Tuple[time, time]:
+    def __getitem__(self, index: int) -> Tuple[timedelta, timedelta]:
         return self.get(index)
 
     @classmethod
     def get(
-        cls, index: int, default=(time(8, 30), time(23, 59))
-    ) -> Tuple[time, time]:
+        cls,
+        index: int,
+        default=(timedelta(hours=8, minutes=30), timedelta(hours=23,
+                                                           minutes=59))
+    ) -> Tuple[timedelta, timedelta]:
         "获取指定节次的开始、结束时间，节次在 1-12 范围之内"
         if 1 <= index <= 12:
             return cls.__MAP__[index]
@@ -60,26 +65,27 @@ class ShaPingBaSchedule(Schedule):
     节次 ：（开始时间，结束时间）
     """
     __MAP__ = {
-        1: (time(8), time(8, 45)),
-        2: (time(8, 55), time(9, 40)),
-        3: (time(10, 10), time(10, 55)),
-        4: (time(11, 5), time(11, 50)),
-        5: (time(14, 30), time(15, 15)),
-        6: (time(15, 25), time(16, 10)),
-        7: (time(16, 40), time(17, 25)),
-        8: (time(17, 35), time(18, 20)),
-        9: (time(19, 30), time(20, 15)),
-        10: (time(20, 25), time(21, 10)),
-        11: (time(21, 20), time(22, 5)),
-        12: (time(22, 5), time(23, 59)),
+        1: (timedelta(hours=8), timedelta(hours=8, minutes=45)),
+        2: (timedelta(hours=8, minutes=55), timedelta(hours=9, minutes=40)),
+        3: (timedelta(hours=10, minutes=10), timedelta(hours=10, minutes=55)),
+        4: (timedelta(hours=11, minutes=5), timedelta(hours=11, minutes=50)),
+        5: (timedelta(hours=14, minutes=30), timedelta(hours=15, minutes=15)),
+        6: (timedelta(hours=15, minutes=25), timedelta(hours=16, minutes=10)),
+        7: (timedelta(hours=16, minutes=40), timedelta(hours=17, minutes=25)),
+        8: (timedelta(hours=17, minutes=35), timedelta(hours=18, minutes=20)),
+        9: (timedelta(hours=19, minutes=30), timedelta(hours=20, minutes=15)),
+        10: (timedelta(hours=20, minutes=25), timedelta(hours=21, minutes=10)),
+        11: (timedelta(hours=21, minutes=20), timedelta(hours=22, minutes=5)),
+        12: (timedelta(hours=22, minutes=5), timedelta(hours=23, minutes=59)),
     }
 
-    def __getitem__(self, index: int) -> Tuple[time, time]:
+    def __getitem__(self, index: int) -> Tuple[timedelta, timedelta]:
         return self.get(index)
 
     @classmethod
-    def get(cls, index: int, default=(time(8), time(23,
-                                                    59))) -> Tuple[time, time]:
+    def get(
+        cls, index: int, default=(timedelta(hours=8), timedelta(23, 59))
+    ) -> Tuple[timedelta, timedelta]:
         "获取指定节次的开始、结束时间，节次在 1-12 范围之内"
         if 1 <= index <= 12:
             return cls.__MAP__[index]
