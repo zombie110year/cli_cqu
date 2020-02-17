@@ -25,14 +25,14 @@ def make_ical(
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
     cal.add("version", "2.0")
     for course in courses:
-        cal.add_component(build_event(course, start, schedule))
+        for ev in build_event(course, start, schedule):
+            cal.add_component(ev)
     return cal
 
 
 def build_event(
         course: Union[Course, ExperimentCourse], start: datetime,
         schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
-    pass
     proto = Event()
     proto.add("summary", course.identifier)
     proto.add("location", course.location)
