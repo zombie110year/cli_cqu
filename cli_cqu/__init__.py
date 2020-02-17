@@ -45,13 +45,15 @@ class App:
         """命令行界面，解析指令执行对应功能"""
         while True:
             cmd = input("cli cqu> ").strip()
-            if cmd == "exit":
+            if cmd == "":
+                continue
+            elif cmd == "exit":
                 print("=== Bye ===")
                 return
             elif cmd == "?" or cmd == "h" or cmd == "help":
                 show_help()
             elif cmd == "courses-json":
-                self.courses_table()
+                self.courses_json()
             else:
                 show_help()
                 print(f"!!! 未处理的命令： {cmd} !!!")
@@ -137,8 +139,21 @@ class App:
 
 def show_help():
     print("=== help ===")
-    print("""目前提供以下功能：
+    print("""在 `cli cqu>` 提示符后输入指令
+
+    目前提供以下指令：
     * courses-json * 获取 JSON 格式的课程表
     * help | h | ? * 获取帮助信息
     * exit * 退出程序
     """)
+
+
+def welcome():
+    print("=== welcome ===")
+    print("""欢迎使用 CLI CQU，你可以输入 help 查看帮助""")
+
+
+def cli_main():
+    app = App()
+    welcome()
+    app.mainloop()
