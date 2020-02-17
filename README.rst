@@ -1,4 +1,3 @@
-#######
 CLI CQU
 #######
 
@@ -6,7 +5,7 @@ CLI CQU
 
 提供以下功能：
 
-下载课表
+- 下载课表
 
 使用
 ====
@@ -33,7 +32,7 @@ CLI CQU 提供了命令行界面。
 
 .. code:: text
 
-cli cqu> help
+    cli cqu> help
 
 查看支持的指令以及用法。
 
