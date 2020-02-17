@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import time
+from argparse import ArgumentParser
 from getpass import getpass
 
 from bs4 import BeautifulSoup
@@ -14,6 +15,7 @@ from .data import HOST
 from .data.js_equality import chkpwd
 from .data.route import Parsed
 from .data.ua import UA_IE11
+from .excpetion.signal import *
 
 __version__ = '0.1.0'
 
@@ -41,22 +43,47 @@ class App:
         })
         self.__login()
 
-    def mainloop(self):
+    def mainloop(self, one_cmd: str = None):
         """命令行界面，解析指令执行对应功能"""
-        while True:
-            cmd = input("cli cqu> ").strip()
-            if cmd == "":
+        def again(one_cmd: str = None) -> str:
+            if one_cmd:
+                yield one_cmd
+            else:
+                while True:
+                    yield input("cli cqu> ").strip()
+
+        again = again(one_cmd)
+
+        for cmd in again:
+            try:
+                self.__run_cmd(cmd)
+            except SigHelp as signal:
+                show_help()
+                print(signal.args[0])
+            except SigContinue:
                 continue
-            elif cmd == "exit":
+            except SigExit:
                 print("=== Bye ===")
                 return
-            elif cmd == "?" or cmd == "h" or cmd == "help":
-                show_help()
-            elif cmd == "courses-json":
-                self.courses_json()
-            else:
-                show_help()
-                print(f"!!! 未处理的命令： {cmd} !!!")
+            except Signal as err:
+                print(f"!!! 未处理的信号 {err}，由 {cmd} 产生 !!!")
+
+    def __run_cmd(self, cmd: str):
+        """执行指令，返回控制信号
+
+        :raises Signal: 各种信号
+        """
+        if cmd == "":
+            raise SigContinue("空指令")
+        elif cmd == "exit":
+            raise SigExit("主动退出")
+        elif cmd == "?" or cmd == "h" or cmd == "help":
+            show_help()
+        elif cmd == "courses-json":
+            self.courses_json()
+        else:
+            raise SigHelp(f"!!! 未处理的命令： {cmd} !!!")
+        raise SigDone
 
     def __login(self):
         "向主页发出请求，发送帐号密码表单，获取 cookie"
@@ -154,6 +181,16 @@ def welcome():
 
 
 def cli_main():
-    app = App()
-    welcome()
-    app.mainloop()
+    parser = ArgumentParser("cli-cqu", description="CQU 教学管理系统的命令行界面")
+    parser.add_argument("-u", "--username", help="输入用户名", default=None)
+    parser.add_argument("-p", "--password", help="输入密码", default=None)
+    parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
+    args = parser.parse_args()
+    app = App(args.username, args.password)
+    if not (args.username is not None and args.password is not None
+            and args.cmd is not None):
+        welcome()
+    if args.cmd is not None:
+        app.mainloop(args.cmd)
+    else:
+        app.mainloop()
