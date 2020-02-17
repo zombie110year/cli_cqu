@@ -5,6 +5,7 @@ import logging
 import re
 import time
 from argparse import ArgumentParser
+from datetime import datetime
 from getpass import getpass
 
 from bs4 import BeautifulSoup
@@ -16,6 +17,7 @@ from .data.js_equality import chkpwd
 from .data.route import Parsed
 from .data.ua import UA_IE11
 from .excpetion.signal import *
+from .util.calendar import make_ical
 
 __version__ = '0.1.0'
 
@@ -151,6 +153,19 @@ class App:
                       out,
                       indent=2,
                       ensure_ascii=False)
+
+    def courses_ical(self):
+        "获取课程表，转化为 icalendar 格式日历日程"
+        print("=== 下载课程表，保存为 ICalendar ===")
+        courses = self.__get_courses()
+        dt: datetime = datetime.fromisoformat(
+            input("学期开始日期 yyyy-mm-dd> ").strip())
+        cal = make_ical(courses, dt)
+        filename = input("文件名（可忽略 ics 后缀）> ").strip()
+        if not filename.endswith(".ics"):
+            filename = f"{filename}.ics"
+        with open(filename, "wb") as out:
+            out.write(cal.to_ical())
 
     def __get_courses(self):
         info = Parsed.TeachingArrangement.personal_courses(self.session)
