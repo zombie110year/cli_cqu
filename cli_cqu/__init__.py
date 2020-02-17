@@ -19,7 +19,7 @@ from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 __all__ = ("App")
 
