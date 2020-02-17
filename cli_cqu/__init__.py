@@ -41,6 +41,21 @@ class App:
         })
         self.__login()
 
+    def mainloop(self):
+        """命令行界面，解析指令执行对应功能"""
+        while True:
+            cmd = input("cli cqu> ").strip()
+            if cmd == "exit":
+                print("=== Bye ===")
+                return
+            elif cmd == "?" or cmd == "h" or cmd == "help":
+                show_help()
+            elif cmd == "courses-json":
+                self.cources_table()
+            else:
+                show_help()
+                print(f"!!! 未处理的命令： {cmd} !!!")
+
     def __login(self):
         "向主页发出请求，发送帐号密码表单，获取 cookie"
         # 初始化 Cookie
@@ -118,3 +133,12 @@ class App:
                       out,
                       indent=2,
                       ensure_ascii=False)
+
+
+def show_help():
+    print("=== help ===")
+    print("""目前提供以下功能：
+    * courses-json * 获取 JSON 格式的课程表
+    * help | h | ? * 获取帮助信息
+    * exit * 退出程序
+    """)
