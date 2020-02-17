@@ -3,6 +3,7 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from . import HOST
+import logging
 
 __all__ = ("Route", "Parsed")
 
@@ -64,7 +65,8 @@ class Parsed:
 
             elif method == "post":
                 # 提交表单，查询课表
-                resp = s.request(method, url, data=data)
+                logging.error("你应当将表单提交到 /znpk/Pri_StuSel_rpt.aspx")
+                return {"error": "should post to /znpk/Pri_StuSel_rpt.aspx"}
             else:
                 return {"raw": s.request(method, url)}
 
