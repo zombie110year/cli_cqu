@@ -110,7 +110,7 @@ class App:
         }
         self.session.post(url, data=login_form)
 
-    def cources_table(self):
+    def courses_json(self):
         """选择课程表，下载为 JSON 文件"""
         print("=== 下载课程表，保存为 JSON ===")
         filename = input("文件名（可忽略 json 后缀）> ").strip()
