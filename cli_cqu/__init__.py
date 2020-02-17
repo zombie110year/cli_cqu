@@ -83,6 +83,8 @@ class App:
             show_help()
         elif cmd == "courses-json":
             self.courses_json()
+        elif cmd == "courses-ical":
+            self.courses_ical()
         else:
             raise SigHelp(f"!!! 未处理的命令： {cmd} !!!")
         raise SigDone
@@ -188,6 +190,7 @@ def show_help():
 
     目前提供以下指令：
     * courses-json * 获取 JSON 格式的课程表
+    * courses-ical * 获取 ICalendar 日历日程格式的课程表
     * help | h | ? * 获取帮助信息
     * exit * 退出程序
     """)
