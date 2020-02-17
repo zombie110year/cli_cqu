@@ -44,7 +44,7 @@ class Parsed:
                     "text": i.text,
                     "value": i.attrs["value"]
                 } for i in el_设定周次]
-                el_排序 = html.select("select[name=px] > input")
+                el_排序 = html.select("select[name=px] > option")
                 排序 = [{
                     "text": i.text,
                     "value": i.attrs["value"]
