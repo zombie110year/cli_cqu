@@ -12,4 +12,4 @@ from cli_cqu.data.route import Parsed
 
 # 登录
 app = App()
-app.cources_table()
+app.courses_table()

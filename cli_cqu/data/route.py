@@ -21,9 +21,9 @@ class Route:
     class TeachingArrangement:
         "教学安排模块"
         # 个人课表
-        personal_cources = "/znpk/Pri_StuSel.aspx"
+        personal_courses = "/znpk/Pri_StuSel.aspx"
         # 查询个人课表
-        personal_cources_table = "/znpk/Pri_StuSel_rpt.aspx"
+        personal_courses_table = "/znpk/Pri_StuSel_rpt.aspx"
 
 
 class Parsed:
@@ -31,9 +31,9 @@ class Parsed:
         "教学安排模块"
 
         @staticmethod
-        def personal_cources(s: Session) -> dict:
+        def personal_courses(s: Session) -> dict:
             "解析个人课表页面，获取可得的信息"
-            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_cources}"
+            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_courses}"
             # 需要填写的表单数据以及说明
             resp = s.get(url)
             html = BeautifulSoup(resp.text, "lxml")
@@ -64,18 +64,18 @@ class Parsed:
             }
 
         @staticmethod
-        def personal_cources_table(
+        def personal_courses_table(
                 s: Session,
                 data: dict) -> List[Union[Course, ExperimentCourse]]:
             """查询个人课表，需要的表单信息可以通过
-            Route.TeachingArrangement.personal_cources 获取
+            Route.TeachingArrangement.personal_courses 获取
             """
-            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_cources_table}"
+            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_courses_table}"
             resp = s.post(url, data=data)
             html = BeautifulSoup(resp.text, "lxml")
             listing = html.select("table > tbody > tr")
-            cources = [make_course(i) for i in listing]
-            return cources
+            courses = [make_course(i) for i in listing]
+            return courses
 
 
 def makeurl(path: str) -> str:

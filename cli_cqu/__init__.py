@@ -51,7 +51,7 @@ class App:
             elif cmd == "?" or cmd == "h" or cmd == "help":
                 show_help()
             elif cmd == "courses-json":
-                self.cources_table()
+                self.courses_table()
             else:
                 show_help()
                 print(f"!!! 未处理的命令： {cmd} !!!")
@@ -117,7 +117,7 @@ class App:
         if not filename.endswith(".json"):
             filename = f"{filename}.json"
 
-        info = Parsed.TeachingArrangement.personal_cources(self.session)
+        info = Parsed.TeachingArrangement.personal_courses(self.session)
         print("=== 选择学年学期 ===")
         xnxq_list = info["Sel_XNXQ"]
         for i, li in enumerate(xnxq_list):
@@ -126,7 +126,7 @@ class App:
         xnxq = info["Sel_XNXQ"][xnxq_i]["value"]
 
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
-        table = Parsed.TeachingArrangement.personal_cources_table(
+        table = Parsed.TeachingArrangement.personal_courses_table(
             self.session, param)
         with open(filename, "wt", encoding="utf-8") as out:
             json.dump([i.dict() for i in table],
