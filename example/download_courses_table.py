@@ -29,3 +29,6 @@ param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
 table = Parsed.TeachingArragement.personal_cources_table(app.session, param)
 
 pprint(table)
+
+with open("result.json", "wt", encoding="utf-8") as out:
+    json.dump([i.dict() for i in table], out, indent=2, ensure_ascii=False)
