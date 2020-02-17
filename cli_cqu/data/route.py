@@ -18,7 +18,7 @@ class Route:
     home = "/home.aspx"
     mainform = "/MAINFRM.aspx"
 
-    class TeachingArragement:
+    class TeachingArrangement:
         "教学安排模块"
         # 个人课表
         personal_cources = "/znpk/Pri_StuSel.aspx"
@@ -27,13 +27,13 @@ class Route:
 
 
 class Parsed:
-    class TeachingArragement:
+    class TeachingArrangement:
         "教学安排模块"
 
         @staticmethod
         def personal_cources(s: Session) -> dict:
             "解析个人课表页面，获取可得的信息"
-            url = f"{HOST.PREFIX}{Route.TeachingArragement.personal_cources}"
+            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_cources}"
             # 需要填写的表单数据以及说明
             resp = s.get(url)
             html = BeautifulSoup(resp.text, "lxml")
@@ -70,7 +70,7 @@ class Parsed:
             """查询个人课表，需要的表单信息可以通过
             Route.TeachingArrangement.personal_cources 获取
             """
-            url = f"{HOST.PREFIX}{Route.TeachingArragement.personal_cources_table}"
+            url = f"{HOST.PREFIX}{Route.TeachingArrangement.personal_cources_table}"
             resp = s.post(url, data=data)
             html = BeautifulSoup(resp.text, "lxml")
             listing = html.select("table > tbody > tr")
