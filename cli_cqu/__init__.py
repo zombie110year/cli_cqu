@@ -206,6 +206,7 @@ def cli_main():
     parser.add_argument("-u", "--username", help="输入用户名", default=None)
     parser.add_argument("-p", "--password", help="输入密码", default=None)
     parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
+    parser.add_argument("--version", help="显示应用版本", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
     app = App(args.username, args.password)
     if not (args.username is not None and args.password is not None
