@@ -42,25 +42,14 @@ class Parsed:
                 "text": i.text,
                 "value": int(i.attrs["value"])
             } for i in el_学年学期]
-            el_是否选择周次 = html.select_one("input[name=zc_flag]")
-            el_设定周次 = html.select("input[name=zc_input]")
-            是否周次 = {"text": "周次", "value": el_是否选择周次.attrs["value"]}
-            周次 = [{"text": i.text, "value": i.attrs["value"]} for i in el_设定周次]
             el_排序 = html.select("select[name=px] > option")
-            排序 = [{
-                "text": i.text,
-                "value": int(i.attrs["value"])
-            } for i in el_排序]
             return {
                 "Sel_XNXQ": 学年学期,
-                "zc_flag": 是否周次,
-                "zc_input": 周次,
-                "px": 排序,
                 "rad": {
                     "text": "总是 on，不知道干嘛的",
                     "value": "on"
                 },
-                "###": "当 zc_flag 为 0 时，可以不传入 zc_* 两个参数"
+                "###": "始终全量获取"
             }
 
         @staticmethod
