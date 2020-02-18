@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-windows:
+  publish:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,9 +24,5 @@ jobs:
       - name: build
         run: |
           poetry build
-  publish:
-    runs-on: windows-latest
-    needs: build-windows
-    steps:
       - name: publish
         run: poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
