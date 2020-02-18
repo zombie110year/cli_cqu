@@ -20,7 +20,7 @@ jobs:
           poetry install
       - name: pytest
         run: |
-          pytest tests
+          python -m pytest
       - name: build
         run: |
           poetry build
