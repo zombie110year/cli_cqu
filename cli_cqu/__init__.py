@@ -18,7 +18,7 @@ from .data.route import Parsed
 from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
-
+from .data.schedule import HuxiSchedule, ShaPingBaSchedule
 __version__ = '0.3.0'
 
 __all__ = ("App")
@@ -90,7 +90,9 @@ class App:
         raise SigDone
 
     def __login(self):
-        "向主页发出请求，发送帐号密码表单，获取 cookie"
+        """向主页发出请求，发送帐号密码表单，获取 cookie
+        帐号或密码错误则抛出异常
+        """
         # 初始化 Cookie
         url = f"{HOST.PREFIX}/home.aspx"
         resp = self.session.get(url)
@@ -141,7 +143,16 @@ class App:
             "efdfdfuuyyuuckjg":
             chkpwd(self.username, self.password),
         }
-        self.session.post(url, data=login_form)
+        page_text = self.session.post(
+            url, data=login_form).content.decode(encoding='GBK')
+        if "正在加载权限数据..." in page_text:
+            return
+        if "账号或密码不正确！请重新输入。" in page_text:
+            raise ValueError("账号或密码错误")
+        if "该账号尚未分配角色!" in page_text:
+            raise ValueError("不存在该账号")
+        else:
+            raise ValueError("意料之外的登陆返回页面")
 
     def courses_json(self):
         """选择课程表，下载为 JSON 文件"""
@@ -159,10 +170,15 @@ class App:
     def courses_ical(self):
         "获取课程表，转化为 icalendar 格式日历日程"
         print("=== 下载课程表，保存为 ICalendar ===")
+        print("=== 选择校区 ===")
+        print("0: 沙坪坝校区\n1: 虎溪校区")
+        schedule = ShaPingBaSchedule() if input(
+            '选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
         courses = self.__get_courses()
+        print(0)
         dt: datetime = datetime.fromisoformat(
             input("学期开始日期 yyyy-mm-dd> ").strip())
-        cal = make_ical(courses, dt)
+        cal = make_ical(courses, dt, schedule)
         filename = input("文件名（可忽略 ics 后缀）> ").strip()
         if not filename.endswith(".ics"):
             filename = f"{filename}.ics"
