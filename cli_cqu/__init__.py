@@ -19,7 +19,7 @@ from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
 from .data.schedule import HuxiSchedule, ShaPingBaSchedule
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 __all__ = ("App")
 
