@@ -5,7 +5,7 @@ import logging
 import re
 import time
 from argparse import ArgumentParser
-from datetime import datetime
+from datetime import date
 from getpass import getpass
 
 from bs4 import BeautifulSoup
@@ -153,8 +153,8 @@ class App:
         schedule = ShaPingBaSchedule() if input('选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
         courses = self.__get_courses()
 
-        dt: datetime = datetime.fromisoformat(input("学期开始日期 yyyy-mm-dd> ").strip())
-        cal = make_ical(courses, dt, schedule)
+        d_start: date = date.fromisoformat(input("学期开始日期 yyyy-mm-dd> ").strip())
+        cal = make_ical(courses, d_start, schedule)
         filename = input("文件名（可忽略 ics 后缀）> ").strip()
         if not filename.endswith(".ics"):
             filename = f"{filename}.ics"

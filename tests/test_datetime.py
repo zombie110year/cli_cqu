@@ -1,9 +1,13 @@
 import pytest
-from datetime import datetime as dt
+from datetime import datetime
+from datetime import date
+from datetime import timezone, timedelta
 from cli_cqu.util.datetime import materialize_calendar
 from typing import Tuple
 START = "2020-02-17"
 
+def dt(*args):
+    return datetime(*args, tzinfo=timezone(timedelta(hours=8), "Asia/Shanghai"))
 
 @pytest.mark.parametrize("tw, tl, ex", [
     ("1", "一[1-2节]", (dt(2020, 2, 17, 8), dt(2020, 2, 17, 9, 40))),
@@ -29,4 +33,4 @@ START = "2020-02-17"
     ("2", "二[14节]", (dt(2020, 2, 25, 8), dt(2020, 2, 25, 23, 59))),
 ])
 def test_materialize_calendar(tw: str, tl: str, ex: Tuple[dt, dt]):
-    assert ex == materialize_calendar(tw, tl, start=dt(2020, 2, 17))
+    assert ex == materialize_calendar(tw, tl, start=date(2020, 2, 17))

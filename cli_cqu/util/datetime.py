@@ -5,6 +5,7 @@ from datetime import date
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
+from datetime import timezone
 from typing import Tuple
 from ..data.schedule import HuxiSchedule, ShaPingBaSchedule
 import re
@@ -16,20 +17,20 @@ __all__ = ("materialize_calendar")
 FULL_DAY = 14
 
 
-def materialize_calendar(t_week: str, t_lesson: str, start: datetime,
+def materialize_calendar(t_week: str, t_lesson: str, start: date,
                          schedule=ShaPingBaSchedule()) -> Tuple[datetime, datetime]:
     """具体化时间日期，将一个 周次+节次 字符串转换成具体的 datetime
 
     例如
 
-    >>> materialize_calendar(t_week="1", t_lesson="一[1-2节]", start=datetime(2020, 2, 17))
+    >>> materialize_calendar(t_week="1", t_lesson="一[1-2节]", start=date(2020, 2, 17))
     (datetime(2019, 2, 17, 8), datetime(2017, 2, 17, 9, 40))
 
     比较特殊的几种编码
 
     1. `13节`、`14节` 表示全天
 
-    >>> materialize_calendar(t_week="1", t_lesson="一[14节]", start=datetime(2020, 2, 17))
+    >>> materialize_calendar(t_week="1", t_lesson="一[14节]", start=date(2020, 2, 17))
     (datetime(2019, 2, 17, 8), datetime(2017, 2, 17, 23, 59))
     """
     p_day_lesson: re.Pattern = re.compile(r"^(?P<day>[一二三四五六日])\[(?P<lesson>[\d\-]+)节\]$")
@@ -53,10 +54,11 @@ def materialize_calendar(t_week: str, t_lesson: str, start: datetime,
         partial_times: Tuple[timedelta, timedelta] = schedule[i_lesson]
     else:
         raise TypeError(f"{i_lesson} 为 {type(i_lesson)} 类型")
-
     partial_td: Tuple[timedelta, timedelta] = (timedelta(days=partial_days) + partial_times[0],
                                                timedelta(days=partial_days) + partial_times[1])
-    result = (start + partial_td[0], start + partial_td[1])
+    # timezone(timedelta(hours=8), "Asia/Shanghai"): 北京时间
+    dt: datetime = datetime.combine(start, time.min, timezone(timedelta(hours=8), "Asia/Shanghai"))
+    result = (dt + partial_td[0], dt + partial_td[1])
     return result
 
 
