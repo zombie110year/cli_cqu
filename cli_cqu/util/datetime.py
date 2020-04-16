@@ -28,7 +28,7 @@ def materialize_calendar(
 
     比较特殊的几种编码
 
-    1. `14节` 表示全天
+    1. `13节`、`14节` 表示全天
 
     >>> materialize_calendar(t_week="1", t_lesson="一[14节]", start=datetime(2020, 2, 17))
     (datetime(2019, 2, 17, 8), datetime(2017, 2, 17, 23, 59))
@@ -44,7 +44,7 @@ def materialize_calendar(
     if re.match(r"\d+-\d+", s_lesson):
         i_lesson: Tuple[int,
                         int] = tuple([int(i) for i in s_lesson.split("-")])
-    elif s_lesson == "14":
+    elif s_lesson == "14" or s_lesson == "13":
         i_lesson: int = FULL_DAY
     else:
         raise ValueError(f"{t_lesson} 无法解析课程节次")
