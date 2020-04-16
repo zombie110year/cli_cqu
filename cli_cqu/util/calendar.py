@@ -1,5 +1,5 @@
 """制作日历日程"""
-from datetime import datetime
+from datetime import date
 from typing import List
 from typing import Tuple
 from typing import Union
@@ -17,7 +17,7 @@ __all__ = ("make_ical")
 
 
 def make_ical(courses: List[Union[Course, ExperimentCourse]],
-              start: datetime,
+              start: date,
               schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
@@ -28,7 +28,7 @@ def make_ical(courses: List[Union[Course, ExperimentCourse]],
     return cal
 
 
-def build_event(course: Union[Course, ExperimentCourse], start: datetime,
+def build_event(course: Union[Course, ExperimentCourse], start: date,
                 schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
     proto = Event()
     proto.add("summary", course.identifier)
