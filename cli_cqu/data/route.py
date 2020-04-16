@@ -25,6 +25,15 @@ class Route:
         # 查询个人课表
         personal_courses_table = "/znpk/Pri_StuSel_rpt.aspx"
 
+    #TODO: 开学后连内网才能连接老教务网
+    class Assignment:
+        """成绩单
+
+        为了避开因未评教而拒绝提供成绩单查询的行为，通过老教务网接口获取数据。
+        """
+        oldjw_login = "http://oldjw.cqu.edu.cn:8088/"
+        # 全部成绩
+        whole_assignment = "http://oldjw.cqu.edu.cn:8088/score/sel_score/sum_score_sel.asp"
 
 class Parsed:
     class TeachingArrangement:
@@ -66,6 +75,10 @@ class Parsed:
             courses = [make_course(i) for i in listing]
             return courses
 
+    class Assignment:
+        @staticmethod
+        def whole_assignment() -> List[Tuple[None]]:
+            pass
 
 def makeurl(path: str) -> str:
     "将 path 补全为完整的 url"
