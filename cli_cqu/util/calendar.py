@@ -16,11 +16,9 @@ from ..util.datetime import materialize_calendar
 __all__ = ("make_ical")
 
 
-def make_ical(
-    courses: List[Union[Course, ExperimentCourse]],
-    start: datetime,
-    schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()
-) -> Calendar:
+def make_ical(courses: List[Union[Course, ExperimentCourse]],
+              start: datetime,
+              schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
     cal.add("version", "2.0")
@@ -30,26 +28,20 @@ def make_ical(
     return cal
 
 
-def build_event(
-        course: Union[Course, ExperimentCourse], start: datetime,
-        schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
+def build_event(course: Union[Course, ExperimentCourse], start: datetime,
+                schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
     proto = Event()
     proto.add("summary", course.identifier)
     proto.add("location", course.location)
     if isinstance(course, Course):
         proto.add("description", f"教师：{course.teacher}")
     elif isinstance(course, ExperimentCourse):
-        proto.add(
-            "description",
-            f"教师：{course.teacher}；值班教师：{course.hosting_teacher}；\n项目：{course.project_name}"
-        )
+        proto.add("description", f"教师：{course.teacher}；值班教师：{course.hosting_teacher}；\n项目：{course.project_name}")
     else:
-        raise TypeError(
-            f"{course} 需要是 Course 或 ExperimentCourse，但却是 {type(course)}")
+        raise TypeError(f"{course} 需要是 Course 或 ExperimentCourse，但却是 {type(course)}")
 
     results = []
-    weeks = course.week_schedule.split(
-        ",") if "," in course.week_schedule else [course.week_schedule]
+    weeks = course.week_schedule.split(",") if "," in course.week_schedule else [course.week_schedule]
     for week in weeks:
         ev: Event = deepcopy(proto)
         t_week = re.match(r"^(\d+)", week)[1]
