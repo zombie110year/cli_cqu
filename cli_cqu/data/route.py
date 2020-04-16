@@ -1,8 +1,7 @@
 """jxgl.cqu.edu.cn 网址的路由
 """
 import logging
-from typing import List
-from typing import Union
+from typing import *
 
 from bs4 import BeautifulSoup
 from requests import Session
