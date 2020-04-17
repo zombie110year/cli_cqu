@@ -1,6 +1,7 @@
 """jxgl.cqu.edu.cn 网址的路由
 """
 import logging
+import re
 from typing import *
 
 from bs4 import BeautifulSoup
@@ -30,7 +31,8 @@ class Route:
 
         为了避开因未评教而拒绝提供成绩单查询的行为，通过老教务网接口获取数据。
         """
-        oldjw_login = "http://oldjw.cqu.edu.cn:8088/"
+        # 发送 POST 获取会话
+        oldjw_login = "http://oldjw.cqu.edu.cn:8088/login.asp"
         # 全部成绩
         whole_assignment = "http://oldjw.cqu.edu.cn:8088/score/sel_score/sum_score_sel.asp"
 
@@ -65,8 +67,81 @@ class Parsed:
 
     class Assignment:
         @staticmethod
-        def whole_assignment() -> List[Tuple[None]]:
-            pass
+        def whole_assignment(u: str, p: str) -> dict:
+            """通过老教务网接口获取成绩单。
+
+            登录密码和新教务网不同，如果没修改过，应为身份证后 6 位。
+
+            :param str u: 学号
+            :param str p: 登录密码
+
+            包含字段::
+
+                学号（str）
+                姓名（str）
+                专业（str）
+                GPA（str）
+                查询时间（str）
+                详细（List[dict]）
+                    课程编码（str）
+                    课程名称（str）
+                    成绩（str）
+                    学分（str）
+                    选修（str）
+                    类别（str）
+                    教师（str）
+                    考别（str）
+                    备注（str）
+                    时间（str）
+            """
+            login_form = {
+                # 学号，非统一身份认证号
+                "username": u,
+                # 老教务网的密码和新教务不同，一般为身份证后 6 位。
+                "password": p,
+                # 提交按钮的尺寸？
+                "submit1.x": 20,
+                "submit1.y": 22,
+                # 院系快速导航
+                "select1": "#"
+            }
+            session = Session()
+            # TODO: 错误处理
+            resp = session.post(Route.Assignment.oldjw_login, data=login_form)
+            resp_text = resp.content.decode("gbk")
+
+            assignments = session.get(Route.Assignment.whole_assignment).content.decode("gbk")
+            assparse = BeautifulSoup(assignments, "lxml")
+
+            header_text = str(assparse.select_one("td > p:nth-child(2)"))
+            header = [t for t in (re.sub(r"</b>|</?p>|\s", "", t) for t in header_text.split("<b>")) if t != ""]
+
+            details = []
+            for tr in assparse.select("tr")[3:-1]:
+                tds = [re.sub(r"\s", "", td.text) for td in tr.select("td")]
+                data = {
+                    "课程编码": tds[1],
+                    "课程名称": tds[2],
+                    "成绩": tds[3],
+                    "学分": tds[4],
+                    "选修": tds[5],
+                    "类别": tds[6],
+                    "教师": tds[7],
+                    "考别": tds[8],
+                    "备注": tds[9],
+                    "时间": tds[10],
+                }
+                details.append(data)
+
+            table = {
+                "学号": header[0][3:],
+                "姓名": header[1][3:],
+                "专业": header[2][3:],
+                "GPA": header[3][4:],
+                "查询时间": re.search(r"查询时间：(2\d{3}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2})", assignments)[1],
+                "详细": details,
+            }
+            return table
 
 
 def makeurl(path: str) -> str:

@@ -199,10 +199,30 @@ def cli_main():
     parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
     parser.add_argument("--version", help="显示应用版本", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
-    app = App(args.username, args.password)
-    if not (args.username is not None and args.password is not None and args.cmd is not None):
-        welcome()
-    if args.cmd is not None:
-        app.mainloop(args.cmd)
+    if args.cmd.startswith("assignments-"):
+        single_assignments_json(args.username, args.password)
     else:
-        app.mainloop()
+        app = App(args.username, args.password)
+        if not (args.username is not None and args.password is not None and args.cmd is not None):
+            welcome()
+        if args.cmd is not None:
+            app.mainloop(args.cmd)
+        else:
+            app.mainloop()
+
+
+def single_assignments_json(username, password):
+    """从老教务网接口获取成绩单数据，保存为 JSON。
+
+    注意，密码和新教务网不一样，默认为身份证后 6 位，所以单独使用。
+
+    只能通过命令行参数调用。"""
+    data = Parsed.Assignment.whole_assignment(username, password)
+    json_obj = json.dumps(data, ensure_ascii=False, indent=2)
+
+    print("=== 保存成绩单 ===")
+    filename = input("保存路径（可忽略 json 扩展名）").strip()
+    if not filename.endswith(".json"):
+        filename = f"{filename}.json"
+    with open(filename, "wt", encoding="utf-8") as out:
+        out.write(json_obj)
