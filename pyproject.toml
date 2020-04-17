@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cli_cqu"
-version = "0.4.0"
+version = "0.4.1"
 description = "CLI CQU 是重庆大学 jxgl 网站的命令行界面。"
 authors = ["zombie110year <zombie110year@outlook.com>"]
 readme = "README.rst"
