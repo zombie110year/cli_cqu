@@ -25,7 +25,6 @@ class Route:
         # 查询个人课表
         personal_courses_table = "/znpk/Pri_StuSel_rpt.aspx"
 
-    #TODO: 开学后连内网才能连接老教务网
     class Assignment:
         """成绩单
 
@@ -99,16 +98,19 @@ class Parsed:
                 "username": u,
                 # 老教务网的密码和新教务不同，一般为身份证后 6 位。
                 "password": p,
-                # 提交按钮的尺寸？
+                # 不知道干啥的，好像也没用
                 "submit1.x": 20,
                 "submit1.y": 22,
                 # 院系快速导航
                 "select1": "#"
             }
             session = Session()
-            # TODO: 错误处理
             resp = session.post(Route.Assignment.oldjw_login, data=login_form)
             resp_text = resp.content.decode("gbk")
+            if "你的密码不正确，请到教务处咨询(学生密码错误请向学院教务人员或辅导员查询)!" in resp_text:
+                raise ValueError("学号或密码错误，老教务处的密码默认为身份证后六位，"
+                                 #
+                                 "或到教务处咨询(学生密码错误请向学院教务人员或辅导员查询)!")
 
             assignments = session.get(Route.Assignment.whole_assignment).content.decode("gbk")
             assparse = BeautifulSoup(assignments, "lxml")
