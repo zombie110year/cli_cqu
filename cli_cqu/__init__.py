@@ -7,18 +7,19 @@ import time
 from argparse import ArgumentParser
 from datetime import date
 from getpass import getpass
+from typing import *
 
 from bs4 import BeautifulSoup
-from requests import Response
-from requests import Session
+from requests import Response, Session
 
 from .data import HOST
 from .data.js_equality import chkpwd
 from .data.route import Parsed
+from .data.schedule import HuxiSchedule, ShaPingBaSchedule
 from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
-from .data.schedule import HuxiSchedule, ShaPingBaSchedule
+
 __version__ = '0.4.1'
 
 __all__ = ("App")
@@ -45,16 +46,16 @@ class App:
 
     def mainloop(self, one_cmd: str = None):
         """命令行界面，解析指令执行对应功能"""
-        def again(one_cmd: str = None) -> str:
+        def again(one_cmd: str = None) -> Generator[str, None, None]:
             if one_cmd:
                 yield one_cmd
             else:
                 while True:
                     yield input("cli cqu> ").strip()
 
-        again = again(one_cmd)
+        again_ = again(one_cmd)
 
-        for cmd in again:
+        for cmd in again_:
             try:
                 self.__run_cmd(cmd)
             except SigHelp as signal:
