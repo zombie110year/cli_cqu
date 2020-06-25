@@ -200,7 +200,7 @@ def cli_main():
     parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
     parser.add_argument("--version", help="显示应用版本", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
-    if args.cmd.startswith("assignments-"):
+    if args.cmd is not None and args.cmd.startswith("assignments-"):
         single_assignments_json(args.username, args.password)
     else:
         app = App(args.username, args.password)
