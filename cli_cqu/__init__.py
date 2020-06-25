@@ -185,6 +185,9 @@ def show_help():
     * courses-ical * 获取 ICalendar 日历日程格式的课程表
     * help | h | ? * 获取帮助信息
     * exit * 退出程序
+    
+    只能在命令行参数中使用的指令：
+    * assignments-json * 从老教务网获取全部成绩，保存为 JSON 格式
     """)
 
 
@@ -200,9 +203,8 @@ def cli_main():
     parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
     parser.add_argument("--version", help="显示应用版本", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
-    if args.cmd.startswith("assignments-"):
-        single_assignments_json(args.username, args.password)
-    else:
+    if args.cmd is None:
+        # 未在命令行参数提供指令的，通过 stdin 读取
         app = App(args.username, args.password)
         if not (args.username is not None and args.password is not None and args.cmd is not None):
             welcome()
@@ -210,6 +212,8 @@ def cli_main():
             app.mainloop(args.cmd)
         else:
             app.mainloop()
+    elif args.cmd.starswith("assignments-json"):
+        single_assignments_json(args.username, args.password)        
 
 
 def single_assignments_json(username, password):
