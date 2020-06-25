@@ -212,7 +212,7 @@ def cli_main():
             app.mainloop(args.cmd)
         else:
             app.mainloop()
-    elif: args.cmd.starswith("assignments-json"):
+    elif args.cmd.starswith("assignments-json"):
         single_assignments_json(args.username, args.password)        
 
 
