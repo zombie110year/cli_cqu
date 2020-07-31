@@ -1,4 +1,6 @@
 """制作日历日程"""
+import uuid
+from datetime import datetime
 from datetime import date
 from typing import List
 from typing import Tuple
@@ -60,6 +62,14 @@ def build_event(course: Union[Course, ExperimentCourse], start: date,
             count = 1
         ev.add("rrule", {"freq": "weekly", "count": count})
         results.append(ev)
+
+        # RFC 5545 要求 VEVENT 必须存在 dtstamp 与 uid 属性
+        ev.add('dtstamp', datetime.utcnow())
+        namespace = uuid.UUID(bytes=
+            int(dt_start.timestamp()).to_bytes(length=8, byteorder='big') +
+            int(dt_end.timestamp()).to_bytes(length=8, byteorder='big')
+        )
+        ev.add('uid', uuid.uuid3(namespace, f"{course.identifier}-{course.teacher}"))
     return results
 
 
