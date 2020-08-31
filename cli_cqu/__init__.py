@@ -190,7 +190,7 @@ def show_help():
     * courses-ical * 获取 ICalendar 日历日程格式的课程表
     * help | h | ? * 获取帮助信息
     * exit * 退出程序
-    
+
     只能在命令行参数中使用的指令：
     * assignments-json * 从老教务网获取全部成绩，保存为 JSON 格式
     """)
@@ -218,7 +218,7 @@ def cli_main():
         else:
             app.mainloop()
     elif args.cmd.startswith("assignments-json"):
-        single_assignments_json(args.username, args.password)        
+        single_assignments_json(args.username, args.password)
 
 
 def single_assignments_json(username, password):

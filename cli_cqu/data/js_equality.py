@@ -11,4 +11,5 @@ def md5(string: str) -> str:
 def chkpwd(username: str, password: str) -> str:
     "赋值给: efdfdfuuyyuuckjg"
     schoolcode = "10611"
-    return md5(username + md5(password)[0:30].upper() + schoolcode)[0:30].upper()
+    return md5(username + md5(password)[0:30].upper() +
+               schoolcode)[0:30].upper()

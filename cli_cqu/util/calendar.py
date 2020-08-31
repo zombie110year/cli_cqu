@@ -18,9 +18,11 @@ from ..util.datetime import materialize_calendar
 __all__ = ("make_ical")
 
 
-def make_ical(courses: List[Union[Course, ExperimentCourse]],
-              start: date,
-              schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()) -> Calendar:
+def make_ical(
+    courses: List[Union[Course, ExperimentCourse]],
+    start: date,
+    schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()
+) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
     cal.add("version", "2.0")
@@ -30,20 +32,26 @@ def make_ical(courses: List[Union[Course, ExperimentCourse]],
     return cal
 
 
-def build_event(course: Union[Course, ExperimentCourse], start: date,
-                schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
+def build_event(
+        course: Union[Course, ExperimentCourse], start: date,
+        schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
     proto = Event()
     proto.add("summary", course.identifier)
     proto.add("location", course.location)
     if isinstance(course, Course):
         proto.add("description", f"教师：{course.teacher}")
     elif isinstance(course, ExperimentCourse):
-        proto.add("description", f"教师：{course.teacher}；值班教师：{course.hosting_teacher}；\n项目：{course.project_name}")
+        proto.add(
+            "description",
+            f"教师：{course.teacher}；值班教师：{course.hosting_teacher}；\n项目：{course.project_name}"
+        )
     else:
-        raise TypeError(f"{course} 需要是 Course 或 ExperimentCourse，但却是 {type(course)}")
+        raise TypeError(
+            f"{course} 需要是 Course 或 ExperimentCourse，但却是 {type(course)}")
 
     results = []
-    weeks = course.week_schedule.split(",") if "," in course.week_schedule else [course.week_schedule]
+    weeks = course.week_schedule.split(
+        ",") if "," in course.week_schedule else [course.week_schedule]
     for week in weeks:
         ev: Event = deepcopy(proto)
         t_week = re.match(r"^(\d+)", week)[1]
@@ -65,11 +73,11 @@ def build_event(course: Union[Course, ExperimentCourse], start: date,
 
         # RFC 5545 要求 VEVENT 必须存在 dtstamp 与 uid 属性
         ev.add('dtstamp', datetime.utcnow())
-        namespace = uuid.UUID(bytes=
-            int(dt_start.timestamp()).to_bytes(length=8, byteorder='big') +
-            int(dt_end.timestamp()).to_bytes(length=8, byteorder='big')
-        )
-        ev.add('uid', uuid.uuid3(namespace, f"{course.identifier}-{course.teacher}"))
+        namespace = uuid.UUID(
+            bytes=int(dt_start.timestamp()).to_bytes(length=8, byteorder='big')
+            + int(dt_end.timestamp()).to_bytes(length=8, byteorder='big'))
+        ev.add('uid',
+               uuid.uuid3(namespace, f"{course.identifier}-{course.teacher}"))
     return results
 
 
