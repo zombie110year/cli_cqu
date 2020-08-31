@@ -15,7 +15,7 @@ from requests import Response, Session
 from .data import HOST
 from .data.js_equality import chkpwd
 from .data.route import Parsed
-from .data.schedule import HuxiSchedule, ShaPingBaSchedule
+from .data.schedule import HuxiSchedule, ShaPingBaSchedule, New2020Schedule
 from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
@@ -149,10 +149,14 @@ class App:
     def courses_ical(self):
         "获取课程表，转化为 icalendar 格式日历日程"
         print("=== 下载课程表，保存为 ICalendar ===")
-        print("=== 选择校区 ===")
-        print("0: 沙坪坝校区\n1: 虎溪校区")
-        schedule = ShaPingBaSchedule() if input('选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
-        courses = self.__get_courses()
+        xnxq_value_ref=[None]
+        courses = self.__get_courses(xnxq_value_ref)
+        if(xnxq_value_ref[0] < 20200):
+            print("=== 选择校区 ===")
+            print("0: 沙坪坝校区\n1: 虎溪校区")
+            schedule = ShaPingBaSchedule() if input('选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
+        else:
+            schedule = New2020Schedule()
 
         d_start: date = date.fromisoformat(input("学期开始日期 yyyy-mm-dd> ").strip())
         cal = make_ical(courses, d_start, schedule)
@@ -162,7 +166,7 @@ class App:
         with open(filename, "wb") as out:
             out.write(cal.to_ical())
 
-    def __get_courses(self):
+    def __get_courses(self, xnxq_value_ref=[None]):
         info = Parsed.TeachingArrangement.personal_courses(self.session)
         print("=== 选择学年学期 ===")
         xnxq_list = info["Sel_XNXQ"]
@@ -170,6 +174,7 @@ class App:
             print(f"{i}: {li['text']}")
         xnxq_i = int(input("学年学期[0|1]> ").rstrip())
         xnxq = info["Sel_XNXQ"][xnxq_i]["value"]
+        xnxq_value_ref[0] = xnxq_list[xnxq_i]['value']
 
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
         courses = Parsed.TeachingArrangement.personal_courses_table(self.session, param)
