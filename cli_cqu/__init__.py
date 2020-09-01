@@ -12,7 +12,7 @@ from .data.route import Parsed
 from .data.schedule import HuxiSchedule, ShaPingBaSchedule, New2020Schedule
 from .excpetion.signal import *
 from .util.calendar import make_ical
-
+from .login import Account
 __version__ = '0.4.1'
 
 __all__ = ("App", )
@@ -24,6 +24,8 @@ def repl_parser():
 
     courses_json = cmd.add_parser("courses-json",
                                   description="获取本学期课程表，保存为 JSON 格式")
+    courses_json.add_argument("startdate",
+                              help="yyyy-mm-dd 形式的学期开始日期，如 2020-08-31")
     courses_json.add_argument("filename", help="另存为路径（后缀 .json）")
 
     courses_ical = cmd.add_parser("courses-ical",
@@ -68,6 +70,8 @@ class App:
             exit()
         elif ns.command == "help":
             self.help_command(ns.command_name)
+        elif ns.command == "courses-json":
+            self.courses_json(ns.startdate)
 
     def help_command(self, command: Optional[str]):
         if command is None:
@@ -81,9 +85,11 @@ class App:
             cmdaction = cmdparser.choices.get(command)
             print(cmdaction.format_help())
 
-    def courses_json(self):
+    def courses_json(self, startdate: str):
         """选择课程表，下载为 JSON 文件"""
-        print("=== 下载课程表，保存为 JSON ===")
+        if self._jxgl is None:
+            self._jxgl = Account().get_session("jxgl")
+
         courses = self.__get_courses()
         filename = input("文件名（可忽略 json 后缀）> ").strip()
         if not filename.endswith(".json"):
@@ -118,7 +124,6 @@ class App:
 
     def __get_courses(self, xnxq_value_ref=[None]):
         info = Parsed.TeachingArrangement.personal_courses(self.session)
-        print("=== 选择学年学期 ===")
         xnxq_list = info["Sel_XNXQ"]
         for i, li in enumerate(xnxq_list):
             print(f"{i}: {li['text']}")

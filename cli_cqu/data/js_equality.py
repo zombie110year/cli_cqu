@@ -1,7 +1,7 @@
 """与一些 JavaScript 等效的代码"""
 from hashlib import md5 as rawmd5
 
-__all__ = ("chkpwd")
+__all__ = ("chkpwd", "md5")
 
 
 def md5(string: str) -> str:

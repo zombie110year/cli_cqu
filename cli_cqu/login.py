@@ -47,9 +47,19 @@ class Account:
         self.__init_profile()
         conf = toml.load(self.profile)
         self._jxgl_username = conf["jxgl"]["username"]
-        self._jxgl_username = conf["jxgl"]["password"]
+        self._jxgl_password = conf["jxgl"]["password"]
         self._oldjw_username = conf["oldjw"]["username"]
-        self._oldjw_username = conf["oldjw"]["username"]
+        self._oldjw_password = conf["oldjw"]["password"]
+
+    def get_session(self, site: str):
+        """获取指定站点的登录 Session
+
+        :param str site: 可选 'jxgl' 或 'oldjw'
+        """
+        if site == "jxgl":
+            return self.login_jxgl(self._jxgl_username, self._jxgl_password)
+        elif site == "oldjw":
+            return self.login_oldjw(self._oldjw_username, self._oldjw_password)
 
     def login_jxgl(self, username: str, password: str) -> Session:
         session = Session()
