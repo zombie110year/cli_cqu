@@ -13,6 +13,7 @@ from lxml import etree
 import toml
 
 from .data.js_equality import *
+from .data.ua import UA_IE11
 
 
 class Account:
@@ -53,8 +54,7 @@ class Account:
     def login_jxgl(self, username: str, password: str) -> Session:
         session = Session()
         session.headers.update({
-            'user-agent':
-            "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; Tablet PC 2.0; rv:11.0) like Gecko",
+            'user-agent': UA_IE11,
             'referer': "http://jxgl.cqu.edu.cn",
             'accept':
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
