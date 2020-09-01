@@ -14,55 +14,48 @@ CLI CQU
 使用
 ====
 
-CLI CQU 提供了命令行界面。
+在命令行运行可执行程序 ``cli-cqu`` 即可进入 CLI CQU 的交互式 Shell 中，可以采用类似于命令行的操作方式。
+进入 REPL 后，提示符被替换为 ``cli cqu> ``。
 
-1. 交互式命令行界面
+第一次运行时，需要输入用户名与密码，分别需要教学管理（jxgl）和老教务网（oldjw）的两个帐号，两个帐号的密码不一定相同，一般来说，老教务网的密码会是初始密码（身份证后 6 位）。账户信息会保存到本地（``~/.config/cli-cqu/account.toml``），之后使用时会直接从文件读取，而无需手动输入。如果有更改，自行修改文件内容。
 
-你可以直接运行命令
-
-.. code:: sh
-
-    cli-cqu
-
-进入交互式命令行。在命令提示符
-
-.. code:: text
-
-    username>
-    password>
-
-后输入校园帐号（学号）和密码（校园卡查询密码）。
-即可完成登录，然后执行命令：
-
-.. code:: text
-
-    cli cqu> help
-
-查看支持的指令以及用法。
-
-2. 命令行参数一次性执行
-
-你可以在命令行中使用 `-u` 和 `-p` 参数直接登录，并且直接传入要执行的指令。如
+1. 退出程序
 
 .. code:: sh
 
-    cli-cqu -u 20770000 -p zombie110year help
+    exit
 
-将直接登录 `20770000` 帐号并执行 `help`
-
-3. 查询成绩
-
-为了避免由于某学期未评教导致无法在 jxgl 网上查询成绩而使用了老教务网的接口。
-老教务网只能通过学校内网访问，在外网需要连接 VPN。
-
-由于老教务网的登录密码和 jxgl 不一样，因此只能通过命令行调用来使用此功能。
-默认的密码是身份证后 6 位：
+2. 查询帮助
 
 .. code:: sh
 
-    cli-cqu -u 20770000 -p 123456 assignments-json
+    help [command_name]
 
-之后将会从老教务网获取成绩单，并解析为 JSON 保存。
+当无参数时，此命令会显示程序整体的帮助信息；当后缀一个命令名时，将显示对应命令的帮助信息。
+
+3. 下载课程表（JSON 格式）
+
+.. code:: sh
+
+    courses-json filename
+
+将 **当前学期** 的课程表内容下载为 JSON 文件至 filename 所指定的路径。
+
+4. 下载课程表（Ical 格式）
+
+.. code:: sh
+
+    courses-ical filename startdate
+
+将 **当前学期** 的课程表内容下载为 ICalendar 日志格式至 filename 所指定的路径。
+
+5. 下载全部成绩（JSON 格式）
+
+.. code:: sh
+
+    assignments-json filename
+
+将 **所有学期的全部科目** 的成绩以 JSON 的格式下载至 filename 指定的路径。
 
 安装
 ====
@@ -87,10 +80,11 @@ CLI CQU 提供了命令行界面。
 下面是本项目各模块的介绍
 
 - `cli_cqu` App 对象和命令行接口
+    - `cli_cqu.login` 模块是登录功能
     - `cli_cqu.data` 模块是需要用到的数据，例如常量、路由、解析规则（函数）等。
         - `cli_cqu.data.ua` User-Agent。
         - `cli_cqu.data.js_equality` 与 jxgl 网页前端的 js 等效的一些函数。
         - `cli_cqu.data.route` 路由，根据 jxgl 的功能模块分类
-    - `cli_cqu.exception` 定义的一些异常
-        - `cli_cqu.exception.signal` 充当信号作用的异常
+        - `cli_cqu.data.schedule` 日程表
     - `cli_cqu.model` 数据模型
+    - `cli_cqu.util` 其他辅助功能
