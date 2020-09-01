@@ -88,7 +88,10 @@ class App:
                 if isinstance(action, _SubParsersAction)
             ][0]
             cmdaction = cmdparser.choices.get(command)
-            print(cmdaction.format_help())
+            if cmdaction is not None:
+                print(cmdaction.format_help())
+            else:
+                print(self._cmdparser.format_help())
 
     def courses_json(self, filename: str):
         """选择课程表，下载为 JSON 文件"""
