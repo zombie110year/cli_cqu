@@ -1,10 +1,13 @@
 """CLI CQU 是重庆大学教务系统的命令行界面
 """
+
+import re
+
 import json
-from argparse import ArgumentParser
+from argparse import ArgumentParser, _SubParsersAction, Namespace
 from datetime import date
 from typing import *
-
+from requests import Session
 from .data.route import Parsed
 from .data.schedule import HuxiSchedule, ShaPingBaSchedule, New2020Schedule
 from .excpetion.signal import *
@@ -12,54 +15,71 @@ from .util.calendar import make_ical
 
 __version__ = '0.4.1'
 
-__all__ = ("App",)
+__all__ = ("App", )
+
+
+def repl_parser():
+    p = ArgumentParser()
+    cmd = p.add_subparsers(title="command", dest="command")
+
+    courses_json = cmd.add_parser("courses-json",
+                                  description="获取本学期课程表，保存为 JSON 格式")
+    courses_json.add_argument("filename", help="另存为路径（后缀 .json）")
+
+    courses_ical = cmd.add_parser("courses-ical",
+                                  description="获取本学期课程表，格式化为 ICalendar 日历")
+    courses_ical.add_argument("filename", help="另存为路径（后缀 .ical）")
+    courses_ical.add_argument("startdate",
+                              help="yyyy-mm-dd 形式的学期开始日期，如 2020-08-31")
+
+    assignments_json = cmd.add_parser("assignments-json", description="获取全部成绩")
+
+    cmd_help = cmd.add_parser("help", description="显示某命令的帮助文档")
+    cmd_help.add_argument("command_name",
+                          help="要查看帮助的命令",
+                          nargs="?",
+                          default=None)
+
+    cmd_exit = cmd.add_parser("exit", description="退出")
+
+    return p
 
 
 class App:
+    def __init__(self):
+        self._jxgl: Optional[Session] = None
+        self._oldjw: Optional[Session] = None
+        self._cmdparser = repl_parser()
 
-    def mainloop(self, one_cmd: str = None):
+    def mainloop(self):
         """命令行界面，解析指令执行对应功能"""
-        def again(one_cmd: str = None) -> Generator[str, None, None]:
-            if one_cmd:
-                yield one_cmd
-            else:
-                while True:
-                    yield input("cli cqu> ").strip()
+        while True:
+            cmdline = re.split(r" +", input("cli cqu> ").strip())
 
-        again_ = again(one_cmd)
-
-        for cmd in again_:
             try:
-                self.__run_cmd(cmd)
-            except SigHelp as signal:
-                show_help()
-                print(signal.args[0])
-            except SigContinue:
+                ns = self._cmdparser.parse_args(cmdline)
+            except:
                 continue
-            except SigExit:
-                print("=== Bye ===")
-                return
-            except Signal as err:
-                print(f"!!! 未处理的信号 {err}，由 {cmd} 产生 !!!")
 
-    def __run_cmd(self, cmd: str):
-        """执行指令，返回控制信号
+            self.runcmd(ns)
 
-        :raises Signal: 各种信号
-        """
-        if cmd == "":
-            raise SigContinue("空指令")
-        elif cmd == "exit":
-            raise SigExit("主动退出")
-        elif cmd == "?" or cmd == "h" or cmd == "help":
-            show_help()
-        elif cmd == "courses-json":
-            self.courses_json()
-        elif cmd == "courses-ical":
-            self.courses_ical()
+    def runcmd(self, ns: Namespace):
+        if ns.command == "exit":
+            exit()
+        elif ns.command == "help":
+            self.help_command(ns.command_name)
+
+    def help_command(self, command: Optional[str]):
+        if command is None:
+            print(self._cmdparser.format_help())
         else:
-            raise SigHelp(f"!!! 未处理的命令： {cmd} !!!")
-        raise SigDone
+            # https://stackoverflow.com/questions/20094215/argparse-subparser-monolithic-help-output
+            cmdparser = [
+                action for action in self._cmdparser._actions
+                if isinstance(action, _SubParsersAction)
+            ][0]
+            cmdaction = cmdparser.choices.get(command)
+            print(cmdaction.format_help())
 
     def courses_json(self):
         """选择课程表，下载为 JSON 文件"""
@@ -69,21 +89,26 @@ class App:
         if not filename.endswith(".json"):
             filename = f"{filename}.json"
         with open(filename, "wt", encoding="utf-8") as out:
-            json.dump([i.dict() for i in courses], out, indent=2, ensure_ascii=False)
+            json.dump([i.dict() for i in courses],
+                      out,
+                      indent=2,
+                      ensure_ascii=False)
 
     def courses_ical(self):
         "获取课程表，转化为 icalendar 格式日历日程"
         print("=== 下载课程表，保存为 ICalendar ===")
-        xnxq_value_ref=[None]
+        xnxq_value_ref = [None]
         courses = self.__get_courses(xnxq_value_ref)
-        if(xnxq_value_ref[0] < 20200):
+        if (xnxq_value_ref[0] < 20200):
             print("=== 选择校区 ===")
             print("0: 沙坪坝校区\n1: 虎溪校区")
-            schedule = ShaPingBaSchedule() if input('选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
+            schedule = ShaPingBaSchedule() if input(
+                '选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
         else:
             schedule = New2020Schedule()
 
-        d_start: date = date.fromisoformat(input("学期开始日期 yyyy-mm-dd> ").strip())
+        d_start: date = date.fromisoformat(
+            input("学期开始日期 yyyy-mm-dd> ").strip())
         cal = make_ical(courses, d_start, schedule)
         filename = input("文件名（可忽略 ics 后缀）> ").strip()
         if not filename.endswith(".ics"):
@@ -102,7 +127,8 @@ class App:
         xnxq_value_ref[0] = xnxq_list[xnxq_i]['value']
 
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
-        courses = Parsed.TeachingArrangement.personal_courses_table(self.session, param)
+        courses = Parsed.TeachingArrangement.personal_courses_table(
+            self.session, param)
         return courses
 
 
@@ -128,22 +154,13 @@ def welcome():
 
 def cli_main():
     parser = ArgumentParser("cli-cqu", description="CQU 教学管理系统的命令行界面")
-    parser.add_argument("-u", "--username", help="输入用户名", default=None)
-    parser.add_argument("-p", "--password", help="输入密码", default=None)
-    parser.add_argument("cmd", help="要执行的指令", nargs="?", default=None)
-    parser.add_argument("--version", help="显示应用版本", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--version",
+                        help="显示应用版本",
+                        action="version",
+                        version=f"%(prog)s {__version__}")
     args = parser.parse_args()
-    if args.cmd is None:
-        # 未在命令行参数提供指令的，通过 stdin 读取
-        app = App(args.username, args.password)
-        if not (args.username is not None and args.password is not None and args.cmd is not None):
-            welcome()
-        if args.cmd is not None:
-            app.mainloop(args.cmd)
-        else:
-            app.mainloop()
-    elif args.cmd.startswith("assignments-json"):
-        single_assignments_json(args.username, args.password)
+    app = App()
+    app.mainloop()
 
 
 def single_assignments_json(username, password):
