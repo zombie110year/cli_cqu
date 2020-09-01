@@ -15,7 +15,7 @@ from .data.schedule import New2020Schedule
 from .util.calendar import make_ical
 from .login import Account
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 __all__ = ("App", )
 
