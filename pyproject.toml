@@ -26,13 +26,15 @@ icalendar = "^4.0.4"
 pytest = "^5.2"
 yapf = "^0.29.0"
 isort = "^4.3.21"
-mypy = "^0.780"
 
 [[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
 [tool.poetry.scripts]
 cli-cqu = "cli_cqu:cli_main"
+
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/zombie110year/cli_cqu/issues"
 [build-system]
