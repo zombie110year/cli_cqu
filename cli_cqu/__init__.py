@@ -1,22 +1,12 @@
 """CLI CQU 是重庆大学教务系统的命令行界面
 """
 import json
-import logging
-import re
-import time
 from argparse import ArgumentParser
 from datetime import date
-from getpass import getpass
 from typing import *
 
-from bs4 import BeautifulSoup
-from requests import Response, Session
-
-from .data import HOST
-from .data.js_equality import chkpwd
 from .data.route import Parsed
 from .data.schedule import HuxiSchedule, ShaPingBaSchedule, New2020Schedule
-from .data.ua import UA_IE11
 from .excpetion.signal import *
 from .util.calendar import make_ical
 
@@ -26,23 +16,6 @@ __all__ = ("App",)
 
 
 class App:
-    def __init__(self, username: str = None, password: str = None):
-        self.username = username if username is not None else input("username> ")
-        self.password = password if password is not None else getpass("password> ").rstrip('\n')
-        self.session = Session()
-        self.session.headers.update({
-            'host': HOST.DOMAIN,
-            'connection': "keep-alive",
-            'cache-control': "max-age=0",
-            'upgrade-insecure-requests': "1",
-            'user-agent': UA_IE11,
-            'accept':
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
-            'referer': HOST.PREFIX,
-            'accept-encoding': "gzip, deflate",
-            'accept-language': "zh-CN,zh;q=0.9",
-        })
-        self.__login()
 
     def mainloop(self, one_cmd: str = None):
         """命令行界面，解析指令执行对应功能"""
@@ -87,54 +60,6 @@ class App:
         else:
             raise SigHelp(f"!!! 未处理的命令： {cmd} !!!")
         raise SigDone
-
-    def __login(self):
-        """向主页发出请求，发送帐号密码表单，获取 cookie
-        帐号或密码错误则抛出异常
-        """
-        # 初始化 Cookie
-        url = f"{HOST.PREFIX}/home.aspx"
-        resp = self.session.get(url)
-        # fix: 偶尔不需要设置 cookie, 直接就进入主页了
-        # 这是跳转页 JavaScript 的等效代码
-        pattern = re.compile(r"(?<=document.cookie=')DSafeId=([A-Z0-9]+);(?=';)")
-        if pattern.search(resp.text):
-            first_cookie = re.search(pattern, resp.text)[1]
-            self.session.cookies.set("DSafeId", first_cookie)
-            time.sleep(0.680)
-            resp = self.session.get(url)
-            new_cookie = resp.headers.get("set-cookie", self.session.cookies.get_dict())
-            c = {
-                1: re.search("(?<=ASP.NET_SessionId=)([a-zA-Z0-9]+)(?=;)", new_cookie)[1],
-                2: re.search("(?<=_D_SID=)([A-Z0-9]+)(?=;)", new_cookie)[1]
-            }
-            self.session.cookies.set("ASP.NET_SessionId", c[1])
-            self.session.cookies.set("_D_SID", c[2])
-
-        # 发送表单
-        url = f"{HOST.PREFIX}/_data/index_login.aspx"
-        html = BeautifulSoup(self.session.get(url).text, "lxml")
-        login_form = {
-            "__VIEWSTATE": html.select_one("#Logon > input[name=__VIEWSTATE]")["value"],
-            "__VIEWSTATEGENERATOR": html.select_one("#Logon > input[name=__VIEWSTATEGENERATOR]")["value"],
-            "Sel_Type": "STU",
-            "txt_dsdsdsdjkjkjc": self.username,  # 学号
-            "txt_dsdfdfgfouyy": "",  # 密码, 实际上的密码加密后赋值给 efdfdfuuyyuuckjg
-            "txt_ysdsdsdskgf": "",
-            "pcInfo": "",
-            "typeName": "",
-            "aerererdsdxcxdfgfg": "",
-            "efdfdfuuyyuuckjg": chkpwd(self.username, self.password),
-        }
-        page_text = self.session.post(url, data=login_form).content.decode(encoding='GBK')
-        if "正在加载权限数据..." in page_text:
-            return
-        if "账号或密码不正确！请重新输入。" in page_text:
-            raise ValueError("账号或密码错误")
-        if "该账号尚未分配角色!" in page_text:
-            raise ValueError("不存在该账号")
-        else:
-            raise ValueError("意料之外的登陆返回页面")
 
     def courses_json(self):
         """选择课程表，下载为 JSON 文件"""

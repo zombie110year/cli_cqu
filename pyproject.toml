@@ -21,6 +21,7 @@ beautifulsoup4 = "^4.8.2"
 lxml = "^4.5.0"
 pydantic = "^1.4"
 icalendar = "^4.0.4"
+toml = "^0.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
