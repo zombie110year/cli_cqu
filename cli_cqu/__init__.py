@@ -22,7 +22,7 @@ from .util.calendar import make_ical
 
 __version__ = '0.4.1'
 
-__all__ = ("App")
+__all__ = ("App",)
 
 
 class App:
