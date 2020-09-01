@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import *
 from requests import Session
 from .data.route import Parsed
-from .data.schedule import HuxiSchedule, ShaPingBaSchedule, New2020Schedule
+from .data.schedule import New2020Schedule
 from .excpetion.signal import *
 from .util.calendar import make_ical
 from .login import Account
@@ -70,6 +70,8 @@ class App:
             self.help_command(ns.command_name)
         elif ns.command == "courses-json":
             self.courses_json(ns.filename)
+        elif ns.command == "courses-ical":
+            self.courses_ical(ns.filename, ns.startdate)
 
     def help_command(self, command: Optional[str]):
         if command is None:
@@ -92,25 +94,11 @@ class App:
                       indent=2,
                       ensure_ascii=False)
 
-    def courses_ical(self):
+    def courses_ical(self, filename: str, startdate: str):
         "获取课程表，转化为 icalendar 格式日历日程"
-        print("=== 下载课程表，保存为 ICalendar ===")
-        xnxq_value_ref = [None]
-        courses = self.__get_courses(xnxq_value_ref)
-        if (xnxq_value_ref[0] < 20200):
-            print("=== 选择校区 ===")
-            print("0: 沙坪坝校区\n1: 虎溪校区")
-            schedule = ShaPingBaSchedule() if input(
-                '选择校区[0|1]> ').strip() == '0' else HuxiSchedule()
-        else:
-            schedule = New2020Schedule()
-
-        d_start: date = date.fromisoformat(
-            input("学期开始日期 yyyy-mm-dd> ").strip())
-        cal = make_ical(courses, d_start, schedule)
-        filename = input("文件名（可忽略 ics 后缀）> ").strip()
-        if not filename.endswith(".ics"):
-            filename = f"{filename}.ics"
+        courses = self._fetch_courses()
+        schedule = New2020Schedule()
+        cal = make_ical(courses, date.fromisoformat(startdate), schedule)
         with open(filename, "wb") as out:
             out.write(cal.to_ical())
 
@@ -125,6 +113,7 @@ class App:
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
         courses = Parsed.personal_courses_table(self._jxgl, param)
         return courses
+
 
 def show_help():
     print("=== help ===")
