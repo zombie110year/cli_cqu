@@ -2,17 +2,19 @@
 """
 
 import re
-
 import json
+
 from argparse import ArgumentParser, _SubParsersAction, Namespace
 from datetime import date, datetime
 from typing import *
+
 from requests import Session
+
 from .data.route import Parsed
 from .data.schedule import New2020Schedule
-from .excpetion.signal import *
 from .util.calendar import make_ical
 from .login import Account
+
 __version__ = '0.4.1'
 
 __all__ = ("App", )
@@ -131,26 +133,6 @@ class App:
             out.write(json_obj)
 
 
-def show_help():
-    print("=== help ===")
-    print("""在 `cli cqu>` 提示符后输入指令
-
-    目前提供以下指令：
-    * courses-json * 获取 JSON 格式的课程表
-    * courses-ical * 获取 ICalendar 日历日程格式的课程表
-    * help | h | ? * 获取帮助信息
-    * exit * 退出程序
-
-    只能在命令行参数中使用的指令：
-    * assignments-json * 从老教务网获取全部成绩，保存为 JSON 格式
-    """)
-
-
-def welcome():
-    print("=== welcome ===")
-    print("""欢迎使用 CLI CQU，你可以输入 help 查看帮助""")
-
-
 def cli_main():
     parser = ArgumentParser("cli-cqu", description="CQU 教学管理系统的命令行界面")
     parser.add_argument("--version",
@@ -160,20 +142,3 @@ def cli_main():
     args = parser.parse_args()
     app = App()
     app.mainloop()
-
-
-def single_assignments_json(username, password):
-    """从老教务网接口获取成绩单数据，保存为 JSON。
-
-    注意，密码和新教务网不一样，默认为身份证后 6 位，所以单独使用。
-
-    只能通过命令行参数调用。"""
-    data = Parsed.Assignment.whole_assignment(username, password)
-    json_obj = json.dumps(data, ensure_ascii=False, indent=2)
-
-    print("=== 保存成绩单 ===")
-    filename = input("保存路径（可忽略 json 扩展名）").strip()
-    if not filename.endswith(".json"):
-        filename = f"{filename}.json"
-    with open(filename, "wt", encoding="utf-8") as out:
-        out.write(json_obj)

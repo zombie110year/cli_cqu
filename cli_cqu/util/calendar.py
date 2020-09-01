@@ -1,28 +1,24 @@
 """制作日历日程"""
+import re
 import uuid
+
+from copy import deepcopy
 from datetime import datetime
 from datetime import date
-from typing import List
-from typing import Tuple
-from typing import Union
-import re
+from typing import *
+
 from icalendar import Calendar
 from icalendar import Event
-from copy import deepcopy
-from ..data.schedule import HuxiSchedule
-from ..data.schedule import ShaPingBaSchedule
-from ..model import Course
-from ..model import ExperimentCourse
+
+from ..data.schedule import Schedule
+from ..model import Course, ExperimentCourse
 from ..util.datetime import materialize_calendar
 
-__all__ = ("make_ical")
+__all__ = ("make_ical", )
 
 
-def make_ical(
-    courses: List[Union[Course, ExperimentCourse]],
-    start: date,
-    schedule: Union[HuxiSchedule, ShaPingBaSchedule] = ShaPingBaSchedule()
-) -> Calendar:
+def make_ical(courses: List[Union[Course, ExperimentCourse]], start: date,
+              schedule: Schedule) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
     cal.add("version", "2.0")
@@ -32,9 +28,8 @@ def make_ical(
     return cal
 
 
-def build_event(
-        course: Union[Course, ExperimentCourse], start: date,
-        schedule: Union[HuxiSchedule, ShaPingBaSchedule]) -> List[Event]:
+def build_event(course: Union[Course, ExperimentCourse], start: date,
+                schedule: Schedule) -> List[Event]:
     proto = Event()
     proto.add("summary", course.identifier)
     proto.add("location", course.location)

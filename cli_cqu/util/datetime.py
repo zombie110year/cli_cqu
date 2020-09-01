@@ -1,25 +1,24 @@
 """处理时间日期
 """
+import re
 
 from datetime import date
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
 from datetime import timezone
-from typing import Tuple
-from ..data.schedule import HuxiSchedule, ShaPingBaSchedule
-import re
-import logging
+from typing import *
 
-__all__ = ("materialize_calendar")
+from ..data.schedule import Schedule
+
+__all__ = ("materialize_calendar", )
 
 # 14节 表示全天
 FULL_DAY = 14
 
 
-def materialize_calendar(
-    t_week: str, t_lesson: str, start: date,
-    schedule=ShaPingBaSchedule()) -> Tuple[datetime, datetime]:
+def materialize_calendar(t_week: str, t_lesson: str, start: date,
+                         schedule: Schedule) -> Tuple[datetime, datetime]:
     """具体化时间日期，将一个 周次+节次 字符串转换成具体的 datetime
 
     例如
