@@ -90,8 +90,7 @@ class Parsed:
                 备注（str）
                 时间（str）
         """
-        assignments = session.get(
-            Route.Assignment.whole_assignment).content.decode("gbk")
+        assignments = session.get(Route.whole_assignment).content.decode("gbk")
         assparse = BeautifulSoup(assignments, "lxml")
 
         header_text = str(assparse.select_one("td > p:nth-child(2)"))

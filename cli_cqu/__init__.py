@@ -33,6 +33,7 @@ def repl_parser():
                               help="yyyy-mm-dd 形式的学期开始日期，如 2020-08-31")
 
     assignments_json = cmd.add_parser("assignments-json", description="获取全部成绩")
+    assignments_json.add_argument("filename", help="另存为路径（后缀 .json）")
 
     cmd_help = cmd.add_parser("help", description="显示某命令的帮助文档")
     cmd_help.add_argument("command_name",
@@ -72,6 +73,8 @@ class App:
             self.courses_json(ns.filename)
         elif ns.command == "courses-ical":
             self.courses_ical(ns.filename, ns.startdate)
+        elif ns.command == "assignments-json":
+            self.assignemnts_json(ns.filename)
 
     def help_command(self, command: Optional[str]):
         if command is None:
@@ -113,6 +116,19 @@ class App:
         param = {"Sel_XNXQ": xnxq, "px": 0, "rad": "on"}
         courses = Parsed.personal_courses_table(self._jxgl, param)
         return courses
+
+    def assignemnts_json(self, filename: str):
+        """从老教务网接口获取成绩单数据，保存为 JSON。
+
+        注意，密码和新教务网不一样，默认为身份证后 6 位，所以单独使用。
+
+        只能通过命令行参数调用。"""
+        if self._oldjw is None:
+            self._oldjw = Account().get_session("oldjw")
+        data = Parsed.whole_assignment(self._oldjw)
+        json_obj = json.dumps(data, ensure_ascii=False, indent=2)
+        with open(filename, "wt", encoding="utf-8") as out:
+            out.write(json_obj)
 
 
 def show_help():
