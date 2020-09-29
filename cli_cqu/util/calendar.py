@@ -9,12 +9,26 @@ from typing import *
 
 from icalendar import Calendar
 from icalendar import Event
+from icalendar import vDDDTypes
+from icalendar.cal import Component
 
 from ..data.schedule import Schedule
 from ..model import Course, ExperimentCourse
 from ..util.datetime import materialize_calendar, VTIMEZONE
 
 __all__ = ("make_ical", )
+
+
+def add_datetime(component: Component, name: str, time: datetime):
+    """一个跳过带时区的时间中 VALUE 属性的 workaround
+
+    某些日历软件无法正常解析同时带 TZID 和 VALUE 属性的时间。
+    详见 https://github.com/collective/icalendar/issues/75 。
+    """
+    vdatetime: vDDDTypes = vDDDTypes(time)
+    if 'VALUE' in vdatetime.params and 'TZID' in vdatetime.params:
+        vdatetime.params.pop('VALUE')
+    component.add(name, vdatetime)
 
 
 def make_ical(courses: List[Union[Course, ExperimentCourse]], start: date,
@@ -55,8 +69,8 @@ def build_event(course: Union[Course, ExperimentCourse], start: date,
         first_lesson = materialize_calendar(t_week, t_lesson, start, schedule)
         dt_start, dt_end = first_lesson
 
-        ev.add("dtstart", dt_start)
-        ev.add("dtend", dt_end)
+        add_datetime(ev, "dtstart", dt_start)
+        add_datetime(ev, "dtend", dt_end)
 
         # 解析周规则
         if "-" in week:
