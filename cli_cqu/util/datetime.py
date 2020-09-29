@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import time
 from datetime import timedelta
 from datetime import timezone
+from icalendar import Timezone
 from typing import *
 
 from ..data.schedule import Schedule
@@ -15,6 +16,19 @@ __all__ = ("materialize_calendar", )
 
 # 14节 表示全天
 FULL_DAY = 14
+
+# 北京时间
+VTIMEZONE: Timezone = Timezone.from_ical("""BEGIN:VTIMEZONE
+TZID:Asia/Shanghai
+X-LIC-LOCATION:Asia/Shanghai
+BEGIN:STANDARD
+TZNAME:CST
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE""")
+TIMEZONE: timezone = VTIMEZONE.to_tz()
 
 
 def materialize_calendar(t_week: str, t_lesson: str, start: date,
@@ -61,9 +75,7 @@ def materialize_calendar(t_week: str, t_lesson: str, start: date,
                                                partial_times[0],
                                                timedelta(days=partial_days) +
                                                partial_times[1])
-    # timezone(timedelta(hours=8), "Asia/Shanghai"): 北京时间
-    dt: datetime = datetime.combine(
-        start, time.min, timezone(timedelta(hours=8), "Asia/Shanghai"))
+    dt: datetime = datetime.combine(start, time.min, TIMEZONE)
     result = (dt + partial_td[0], dt + partial_td[1])
     return result
 

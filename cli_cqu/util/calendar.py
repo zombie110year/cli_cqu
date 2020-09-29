@@ -12,7 +12,7 @@ from icalendar import Event
 
 from ..data.schedule import Schedule
 from ..model import Course, ExperimentCourse
-from ..util.datetime import materialize_calendar
+from ..util.datetime import materialize_calendar, VTIMEZONE
 
 __all__ = ("make_ical", )
 
@@ -22,6 +22,7 @@ def make_ical(courses: List[Union[Course, ExperimentCourse]], start: date,
     cal = Calendar()
     cal.add("prodid", "-//Zombie110year//CLI CQU//")
     cal.add("version", "2.0")
+    cal.add_component(VTIMEZONE)
     for course in courses:
         for ev in build_event(course, start, schedule):
             cal.add_component(ev)
